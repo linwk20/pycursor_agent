@@ -12,6 +12,9 @@ def test_sdk():
         # ask if user wants to delete the directory
         if input(f"Do you want to delete the test results directory {test_results_dir} to start a new test? (y/n): ") == "y":
             shutil.rmtree(test_results_dir)
+        else:
+            print("Test results directory not deleted. Please delete it manually before running the test.")
+            return
 
     os.makedirs(test_results_dir)
     
@@ -95,7 +98,7 @@ def test_sdk():
         with open(buggy_file, "w") as f:
             f.write("def power(a, b):\n    return a + b  # Wrong logic, should be a ** b")
         
-        res = client.debug("buggy.py 里的 power 函数逻辑错了，请帮我检查并修复", model=model)
+        res = client.debug("The logic of the power function in buggy.py is wrong. Please check and fix it for me.", model=model)
         log(f"Result: {res}\n")
     except Exception as e:
         log(f"Error in 'debug': {e}\n")
