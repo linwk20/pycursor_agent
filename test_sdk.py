@@ -9,7 +9,10 @@ def test_sdk():
     
     # Clean and create the test results directory
     if os.path.exists(test_results_dir):
-        shutil.rmtree(test_results_dir)
+        # ask if user wants to delete the directory
+        if input(f"Do you want to delete the test results directory {test_results_dir} to start a new test? (y/n): ") == "y":
+            shutil.rmtree(test_results_dir)
+
     os.makedirs(test_results_dir)
     
     print(f"Testing SDK. Results will be saved in: {test_results_dir}")
@@ -27,8 +30,11 @@ def test_sdk():
 
     log("=== Cursor Agent SDK Test Report ===\n")
 
-    # 1. Testing Multi-turn Chat using Chat ID
-    log("--- 1. Testing Chat Session Resumption ---")
+    # --- PART 1: CONTEXT TESTS ---
+    log("=== PART 1: CONTEXT TESTS ===")
+    
+    # 1.1 Testing Multi-turn Chat using Chat ID
+    log("--- 1.1 Testing Chat Session Resumption ---")
     try:
         chat_id = client.create_chat()
         log(f"Created new chat session: {chat_id}")
@@ -43,18 +49,58 @@ def test_sdk():
     except Exception as e:
         log(f"Error in multi-turn chat: {e}\n")
 
-    # 2. Testing 'agent' mode
-    log("--- 2. Testing 'agent' mode (with file-based context) ---")
+    # 1.2 Testing 'agent' mode (with file-based context)
+    log("--- 1.2 Testing File-based Context ---")
     try:
-        res = client.agent("Write '1 + 1 = 2' into context_test.txt", model=model)
-        log(f"Turn 1: {res}")
+        res = client.agent("Write 'Context test: Step 1 passed' into context_file.txt", model=model)
+        log(f"Step 1: {res}")
         
-        res = client.agent("Read context_test.txt and tell me what the result was", model=model)
-        log(f"Turn 2 (File-based context): {res}\n")
+        res = client.agent("Read context_file.txt and summarize the context", model=model)
+        log(f"Step 2: {res}\n")
+    except Exception as e:
+        log(f"Error in file-based context test: {e}\n")
+
+    # --- PART 2: FUNCTIONALITY TESTS (4 MODES) ---
+    log("\n=== PART 2: FUNCTIONALITY TESTS ===")
+
+    # 2.1 Agent Mode (Standard)
+    log("--- 2.1 Testing 'agent' mode (standard) ---")
+    try:
+        res = client.agent("Create a file 'mode_test.txt' with the current date and time", model=model)
+        log(f"Result: {res}\n")
     except Exception as e:
         log(f"Error in 'agent': {e}\n")
 
-    log("=== Test Complete ===")
+    # 2.2 Ask Mode
+    log("--- 2.2 Testing 'ask' mode ---")
+    try:
+        res = client.ask("What is the capital of France?", model=model)
+        log(f"Result: {res}\n")
+    except Exception as e:
+        log(f"Error in 'ask': {e}\n")
+
+    # 2.3 Planner Mode
+    log("--- 2.3 Testing 'planner' mode ---")
+    try:
+        res = client.plan("I want to build a simple Todo app, please provide a plan", model=model)
+        log(f"Result: {res}\n")
+    except Exception as e:
+        log(f"Error in 'planner': {e}\n")
+
+    # 2.4 Debug Mode
+    log("--- 2.4 Testing 'debug' mode ---")
+    try:
+        # Create a buggy file for debugging
+        buggy_file = os.path.join(test_results_dir, "buggy.py")
+        with open(buggy_file, "w") as f:
+            f.write("def power(a, b):\n    return a + b  # Wrong logic, should be a ** b")
+        
+        res = client.debug("buggy.py 里的 power 函数逻辑错了，请帮我检查并修复", model=model)
+        log(f"Result: {res}\n")
+    except Exception as e:
+        log(f"Error in 'debug': {e}\n")
+
+    log("=== All Tests Complete ===")
 
 if __name__ == "__main__":
     test_sdk()

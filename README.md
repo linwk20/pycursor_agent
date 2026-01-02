@@ -37,7 +37,7 @@ We highly recommend using a virtual environment:
 
 ### 3. Install the SDK
 ```bash
-pip install pycursor-agent
+pip install pycursor_agent
 ```
 
 ## 🛠 Usage
@@ -53,7 +53,7 @@ client = Client(workspace="./my_project")
 ```
 
 ### Context Management Strategies
-You can manage conversation context in two ways:
+You can manage conversation context in at least two ways:
 
 1.  **File-based Context**: Leverage the Agent's ability to read and write files within the workspace. One Agent can write a plan or state to a file, and another (or the same one in a later call) can read it to continue the task.
 2.  **Chat Session Resumption**: Use Cursor's native `chatId` to resume previous conversations.
@@ -76,7 +76,7 @@ print(response) # Should output something like "Your name is Alice"
 4.  **Debug Mode (`.debug`)**: Focused on bug hunting and fixing.
 
 ## 🧪 Testing
-The project includes a `test_sdk.py` script to verify all modes and features:
+The project includes a `test_sdk.py` script to verify all modes and features, the results will be placed in `./test_results`.
 ```bash
 python3 test_sdk.py
 ```
