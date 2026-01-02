@@ -1,67 +1,19 @@
 === Cursor Agent SDK Test Report ===
 
---- 1. Testing 'ask' mode ---
-Prompt: What is 1 + 1?
-Result: 1 + 1 is 2.
+--- 1. Testing Chat Session Resumption ---
+Created new chat session: 065f303c-a0c0-459b-9c93-03e7b5528b66
+Sent: My name is Cursor Explorer.
+Sent: What is my name?
+Result: Your name is Cursor Explorer. How can I help you today?
 
---- 2. Testing 'agent' mode ---
-Prompt: Write result of '1 + 1' to file
-Result: I've written the result of `1 + 1` to `agent_result.txt`.
+--- 2. Testing 'agent' mode (with file-based context) ---
+Turn 1: I have written '1 + 1 = 2' to `context_test.txt`.
+Turn 2 (File-based context): The content of `context_test.txt` is:
 
-```text:agent_result.txt
-2
+```1:1:test_results/context_test.txt
+1 + 1 = 2
 ```
 
---- 3. Testing 'planner' mode ---
-Prompt: Plan a calculator program
-Result: To help you build a simple calculator, I have outlined a step-by-step plan. This plan focuses on creating a CLI-based tool that handles basic arithmetic operations with robust error handling.
-
-### Detailed Plan
-
-1.  **Define Requirements & Project Structure**
-    *   **Goal**: Create a Python-based command-line calculator.
-    *   **Operations**: Addition, Subtraction, Multiplication, and Division.
-    *   **File**: We will create a single file named `calculator.py`.
-
-2.  **Implement Core Arithmetic Logic**
-    *   Create functions for each operation:
-        *   `add(a, b)`: Returns $a + b$
-        *   `subtract(a, b)`: Returns $a - b$
-        *   `multiply(a, b)`: Returns $a \times b$
-        *   `divide(a, b)`: Returns $a / b$ (with a check for division by zero).
-
-3.  **Build the User Interface (CLI)**
-    *   Implement a `while` loop to keep the program running until the user chooses to exit.
-    *   Prompt the user to select an operation (e.g., `1. Add, 2. Subtract, ...`).
-    *   Collect two numbers from the user via `input()`.
-
-4.  **Add Error Handling & Input Validation**
-    *   **Number Validation**: Ensure the inputs can be converted to floats.
-    *   **Zero Division**: Catch attempts to divide by zero and provide a friendly error message instead of crashing.
-    *   **Invalid Choices**: Handle cases where a user selects an operation that doesn't exist.
-
-5.  **Testing and Refinement**
-    *   Verify the calculator works for integers and floating-point numbers.
-    *   Test edge cases like large numbers, negative numbers, and zeros.
-
----
-
-I have initialized a task list to track our progress. Once you are ready, I can begin implementing the first step.
-
-### Progress Tracking
-- [in_progress] Define requirements and project structure for the calculator program
-- [pending] Implement core arithmetic functions (add, subtract, multiply, divide)
-- [pending] Implement user input handling and CLI loop
-- [pending] Add error handling for invalid inputs and edge cases (e.g., division by zero)
-- [pending] Test the calculator with various inputs to ensure correctness
-
---- 4. Testing 'debug' mode ---
-Prompt: Fix buggy_code.py
-Result: The `add` function in `buggy_code.py` was incorrectly performing subtraction. I have updated it to perform addition.
-
-```1:2:test_results/buggy_code.py
-def add(a, b):
-    return a + b
-```
+The result was **2**.
 
 === Test Complete ===

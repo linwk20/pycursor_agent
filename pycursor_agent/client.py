@@ -26,6 +26,7 @@ class CursorAgentClient:
              model: Optional[str] = None, 
              mode: str = "agent", 
              force: bool = True,
+             chat_id: Optional[str] = None,
              print_output: bool = True) -> str:
         """
         Run the Cursor Agent with a prompt.
@@ -34,14 +35,10 @@ class CursorAgentClient:
         :param model: The AI model to use (e.g., 'gemini-3-flash', 'gpt-5.2').
         :param mode: The operation mode ('ask', 'agent', 'planner', 'debug').
         :param force: If True, automatically approve file changes and commands.
+        :param chat_id: Optional chat ID to resume a previous conversation.
         :param print_output: If True, the agent's response is printed to stdout.
         :return: The string response from the agent.
         """
-        
-        # Prepare the base command
-        # Although 'ask', 'planner', 'debug' are not direct subcommands of cursor-agent CLI,
-        # we can influence behavior via the prompt or future-proof the API.
-        # Currently, we use the 'agent' command as the primary interface.
         
         cmd = [self.agent_path]
         
@@ -53,6 +50,9 @@ class CursorAgentClient:
             
         if model:
             cmd.extend(["--model", model])
+            
+        if chat_id:
+            cmd.extend(["--resume", chat_id])
             
         if self.workspace:
             cmd.extend(["--workspace", self.workspace])
@@ -66,7 +66,6 @@ class CursorAgentClient:
         elif mode == "planner":
             final_prompt = f"[MODE: PLANNER - Create a detailed plan for the following task but do not execute yet] {prompt}"
         
-        # Use the 'agent' subcommand as it's the most versatile
         cmd.extend(["agent", final_prompt])
         
         try:
@@ -80,6 +79,22 @@ class CursorAgentClient:
         except subprocess.CalledProcessError as e:
             error_msg = e.stderr or e.stdout
             raise RuntimeError(f"Cursor Agent execution failed: {error_msg}")
+
+    def create_chat(self) -> str:
+        """
+        Create a new empty chat session and return its ID.
+        """
+        try:
+            result = subprocess.run(
+                [self.agent_path, "create-chat"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            # Assuming output format like "Created chat: <chatId>" or just the ID
+            return result.stdout.strip().split()[-1]
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"Failed to create chat: {e.stderr}")
 
     def ask(self, prompt: str, model: Optional[str] = None) -> str:
         """Helper for 'ask' mode."""

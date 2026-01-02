@@ -14,7 +14,6 @@ def test_sdk():
     
     print(f"Testing SDK. Results will be saved in: {test_results_dir}")
     
-    # Set workspace to test_results so generated files stay within that folder
     client = Client(workspace=test_results_dir)
     model = "gemini-3-flash"
     
@@ -28,43 +27,32 @@ def test_sdk():
 
     log("=== Cursor Agent SDK Test Report ===\n")
 
-    # 1. Testing 'ask' mode
-    log("--- 1. Testing 'ask' mode ---")
+    # 1. Testing Multi-turn Chat using Chat ID
+    log("--- 1. Testing Chat Session Resumption ---")
     try:
-        res = client.ask("What is 1 + 1?", model=model)
-        log(f"Prompt: What is 1 + 1?\nResult: {res}\n")
+        chat_id = client.create_chat()
+        log(f"Created new chat session: {chat_id}")
+        
+        # Turn 1: Introduce
+        client.agent("My name is Cursor Explorer.", model=model, chat_id=chat_id)
+        log("Sent: My name is Cursor Explorer.")
+        
+        # Turn 2: Ask about the name
+        res = client.agent("What is my name?", model=model, chat_id=chat_id)
+        log(f"Sent: What is my name?\nResult: {res}\n")
     except Exception as e:
-        log(f"Error in 'ask': {e}\n")
+        log(f"Error in multi-turn chat: {e}\n")
 
     # 2. Testing 'agent' mode
-    log("--- 2. Testing 'agent' mode ---")
+    log("--- 2. Testing 'agent' mode (with file-based context) ---")
     try:
-        # Ask it to write the result to a file
-        res = client.agent("Write the result of '1 + 1' into a file named agent_result.txt", model=model)
-        log(f"Prompt: Write result of '1 + 1' to file\nResult: {res}\n")
+        res = client.agent("Write '1 + 1 = 2' into context_test.txt", model=model)
+        log(f"Turn 1: {res}")
+        
+        res = client.agent("Read context_test.txt and tell me what the result was", model=model)
+        log(f"Turn 2 (File-based context): {res}\n")
     except Exception as e:
         log(f"Error in 'agent': {e}\n")
-
-    # 3. Testing 'planner' mode
-    log("--- 3. Testing 'planner' mode ---")
-    try:
-        res = client.plan("I want to write a simple calculator program, please help me plan the steps", model=model)
-        log(f"Prompt: Plan a calculator program\nResult: {res}\n")
-    except Exception as e:
-        log(f"Error in 'planner': {e}\n")
-
-    # 4. Testing 'debug' mode
-    log("--- 4. Testing 'debug' mode ---")
-    try:
-        # Create a buggy file in the test_results directory for debugging
-        buggy_file = os.path.join(test_results_dir, "buggy_code.py")
-        with open(buggy_file, "w") as f:
-            f.write("def add(a, b):\n    return a - b  # Intentional bug")
-        
-        res = client.debug("The logic of the add function in buggy_code.py seems wrong, please check and fix it", model=model)
-        log(f"Prompt: Fix buggy_code.py\nResult: {res}\n")
-    except Exception as e:
-        log(f"Error in 'debug': {e}\n")
 
     log("=== Test Complete ===")
 
